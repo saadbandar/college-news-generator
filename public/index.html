@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>أداة إعداد أخبار الكلية</title>
+  <link rel="icon" href="assets/icon.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="brand-header">
+    <div class="container brand-header__inner">
+      <div class="brand-logo">
+        <img src="assets/logo-h.png" alt="شعار جامعة الأمير سطام بن عبدالعزيز" />
+        <div class="brand-logo__college">كلية إدارة الأعمال بحوطة بني تميم</div>
+      </div>
+      <div class="brand-title">
+        <h1>أداة إعداد أخبار الكلية</h1>
+        <p>صياغة الأخبار الرسمية للفعاليات والبرامج بالعربية والإنجليزية وفق الهوية البصرية للجامعة</p>
+      </div>
+    </div>
+    <div class="brand-band">
+      <div class="brand-band__arches" aria-hidden="true"></div>
+    </div>
+  </header>
+
+  <div id="credBanner" class="banner banner--warn" hidden>
+    <div><strong>إعداد مزوّد الذكاء الاصطناعي</strong> — <span id="credDetail">اختر الطريقة التي تناسبك؛ يُحفظ الاختيار محليًا في ملف <code>.env</code> داخل مجلد الأداة.</span></div>
+    <div class="provider-options">
+      <div class="provider-card">
+        <div class="provider-card__title">GitHub Copilot</div>
+        <p class="muted">يستخدم حساب GitHub المسجّل على هذا الجهاز واشتراك Copilot الخاص به (بما فيه الخطة المجانية). لا يحتاج مفتاحًا.</p>
+        <button class="btn btn--primary" id="useCopilotBtn"><span class="btn__spinner" hidden></span><span class="btn__text">استخدام GitHub Copilot</span></button>
+      </div>
+      <div class="provider-card">
+        <div class="provider-card__title">Claude (Anthropic API)</div>
+        <p class="muted">يحتاج مفتاحًا من <span dir="ltr">console.anthropic.com → API Keys</span> ورصيدًا مدفوعًا.</p>
+        <form id="keyForm" class="key-form" dir="ltr" autocomplete="off">
+          <input id="keyInput" type="password" placeholder="sk-ant-..." spellcheck="false" required />
+          <button type="submit" class="btn btn--secondary"><span class="btn__spinner" hidden></span><span class="btn__text">حفظ المفتاح</span></button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div id="providerBar" class="provider-bar" hidden>
+    <span>المزوّد الحالي: <strong id="providerName"></strong></span>
+    <button class="btn btn--link" id="changeProviderBtn">تغيير</button>
+  </div>
+
+  <main class="container">
+    <nav class="stepper" aria-label="مراحل إعداد الخبر">
+      <button class="step is-active" data-step="1"><span class="step__num">1</span><span class="step__label">معلومات الخبر</span></button>
+      <button class="step" data-step="2"><span class="step__num">2</span><span class="step__label">الصور</span></button>
+      <button class="step" data-step="3"><span class="step__num">3</span><span class="step__label">توليد الخبر</span></button>
+      <button class="step" data-step="4"><span class="step__num">4</span><span class="step__label">المراجعة والتعديل</span></button>
+      <button class="step" data-step="5"><span class="step__num">5</span><span class="step__label">الاعتماد والتصدير</span></button>
+    </nav>
+
+    <!-- المرحلة 1 -->
+    <section class="panel" data-panel="1">
+      <div class="panel__head">
+        <h2>معلومات الخبر</h2>
+        <p>أدخل ملخصًا حرًا عن الفعالية، أو عبّئ الحقول التفصيلية، أو كليهما. لا يشترط تعبئة جميع الحقول، ولن تُخترع أي معلومة غير مذكورة.</p>
+      </div>
+
+      <label class="field field--main">
+        <span class="field__label">ملخص الفعالية أو البرنامج <em>(الحقل الرئيسي)</em></span>
+        <textarea id="freeText" rows="8" placeholder="مثال: نظمت وحدة الأنشطة الطلابية دورة تدريبية بعنوان «مهارات العرض والإلقاء» يوم الثلاثاء 12 مارس 2026 في قاعة التدريب بالكلية، قدمها د. فلان الفلاني، واستهدفت طلاب السنة الأولى، وتناولت محاور ... وهدفت إلى ... وفي ختام الدورة تم ..."></textarea>
+      </label>
+
+      <details class="details" open>
+        <summary>الحقول التفصيلية (اختيارية)</summary>
+        <div class="grid grid--2">
+          <label class="field"><span class="field__label">اسم الفعالية أو البرنامج</span><input id="eventName" type="text" /></label>
+          <label class="field"><span class="field__label">الجهة المنظمة داخل الكلية</span><input id="organizer" type="text" placeholder="مثال: وحدة الأنشطة الطلابية / قسم إدارة الأعمال" /></label>
+          <label class="field"><span class="field__label">تاريخ التنفيذ</span><input id="date" type="text" placeholder="مثال: الثلاثاء 12 مارس 2026م" /></label>
+          <label class="field"><span class="field__label">مكان التنفيذ</span><input id="location" type="text" /></label>
+          <label class="field"><span class="field__label">الفئة المستهدفة</span><input id="audience" type="text" /></label>
+          <label class="field"><span class="field__label">مقدم البرنامج أو المحاضر</span><input id="presenter" type="text" /></label>
+          <label class="field field--full"><span class="field__label">أبرز محاور البرنامج</span><textarea id="topics" rows="3"></textarea></label>
+          <label class="field field--full"><span class="field__label">الأهداف</span><textarea id="objectives" rows="3"></textarea></label>
+          <label class="field field--full"><span class="field__label">أبرز ما تم خلال الفعالية</span><textarea id="highlights" rows="3"></textarea></label>
+          <label class="field field--full"><span class="field__label">معلومات إضافية</span><textarea id="extra" rows="3"></textarea></label>
+        </div>
+      </details>
+
+      <div class="actions">
+        <button class="btn btn--ghost" id="clearAll">مسح الكل</button>
+        <button class="btn btn--primary" data-next="2">التالي: الصور</button>
+      </div>
+    </section>
+
+    <!-- المرحلة 2 -->
+    <section class="panel" data-panel="2" hidden>
+      <div class="panel__head">
+        <h2>صور الخبر</h2>
+        <p>ارفع صورة أو أكثر من الفعالية. تولّد الأداة نصًا بديلًا (Alt Text) دقيقًا لكل صورة بالعربية والإنجليزية، ويمكنك تعديله قبل الاعتماد.</p>
+      </div>
+
+      <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="رفع الصور">
+        <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden />
+        <div class="dropzone__icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" width="44" height="44"><path d="M24 34V14m0 0l-8 8m8-8l8 8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 32v6a4 4 0 004 4h24a4 4 0 004-4v-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+        </div>
+        <p><strong>اسحب الصور هنا</strong> أو انقر للاختيار</p>
+        <span class="muted">JPG, PNG, WEBP — حتى 10 ميجابايت للصورة</span>
+      </div>
+
+      <div id="imagesList" class="images"></div>
+
+      <div class="actions">
+        <button class="btn btn--ghost" data-prev="1">السابق</button>
+        <button class="btn btn--primary" data-next="3">التالي: توليد الخبر</button>
+      </div>
+    </section>
+
+    <!-- المرحلة 3 -->
+    <section class="panel" data-panel="3" hidden>
+      <div class="panel__head">
+        <h2>توليد الخبر</h2>
+        <p>تولّد الأداة خبرًا رسميًا بالعربية ثم نسخة إنجليزية احترافية منه اعتمادًا على البيانات المدخلة فقط.</p>
+      </div>
+
+      <div class="gen-bar">
+        <button class="btn btn--primary btn--lg" id="generateBtn">
+          <span class="btn__spinner" hidden></span>
+          <span class="btn__text">توليد الخبر</span>
+        </button>
+        <button class="btn btn--ghost" id="regenerateBtn" hidden>إعادة التوليد بصياغة مختلفة</button>
+      </div>
+
+      <div id="missingInfo" class="banner banner--info" hidden></div>
+
+      <div id="genResult" class="result" hidden>
+        <article class="news-card" dir="rtl">
+          <div class="news-card__bar"><span>النسخة العربية</span><button class="btn btn--sm" data-copy="ar">نسخ</button></div>
+          <h3 id="r_ar_title"></h3>
+          <div id="r_ar_body" class="news-body"></div>
+        </article>
+        <article class="news-card news-card--en" dir="ltr">
+          <div class="news-card__bar"><span>English Version</span><button class="btn btn--sm" data-copy="en">Copy</button></div>
+          <h3 id="r_en_title"></h3>
+          <div id="r_en_body" class="news-body"></div>
+        </article>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn--ghost" data-prev="2">السابق</button>
+        <button class="btn btn--primary" data-next="4" id="toReview" disabled>التالي: المراجعة والتعديل</button>
+      </div>
+    </section>
+
+    <!-- المرحلة 4 -->
+    <section class="panel" data-panel="4" hidden>
+      <div class="panel__head">
+        <h2>المراجعة والتعديل</h2>
+        <p>النسخة العربية هي الأساس. عدّل العنوان أو النص، وستُحدَّث النسخة الإنجليزية لتعكس التعديل بدقة.</p>
+      </div>
+
+      <div class="editor">
+        <div class="editor__col" dir="rtl">
+          <div class="editor__bar">
+            <span class="editor__title">النسخة العربية (الأساسية)</span>
+            <button class="btn btn--sm" data-copy="ar">نسخ</button>
+          </div>
+          <label class="field"><span class="field__label">عنوان الخبر</span><input id="e_ar_title" type="text" /></label>
+          <label class="field"><span class="field__label">نص الخبر</span><textarea id="e_ar_body" rows="16"></textarea></label>
+          <div class="wordcount muted" id="arCount"></div>
+        </div>
+        <div class="editor__col" dir="ltr">
+          <div class="editor__bar">
+            <span class="editor__title">English Version</span>
+            <span id="staleBadge" class="badge badge--warn" hidden>Out of date</span>
+            <button class="btn btn--sm" data-copy="en">Copy</button>
+          </div>
+          <label class="field"><span class="field__label">Headline</span><input id="e_en_title" type="text" /></label>
+          <label class="field"><span class="field__label">Body</span><textarea id="e_en_body" rows="16"></textarea></label>
+          <div class="wordcount muted" id="enCount"></div>
+        </div>
+      </div>
+
+      <div class="sync-bar">
+        <label class="check"><input type="checkbox" id="autoSync" checked /> تحديث الترجمة تلقائيًا بعد التعديل</label>
+        <button class="btn btn--secondary" id="syncBtn">
+          <span class="btn__spinner" hidden></span>
+          <span class="btn__text">تحديث الترجمة الإنجليزية</span>
+        </button>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn--ghost" data-prev="3">السابق</button>
+        <button class="btn btn--primary" data-next="5">التالي: الاعتماد والتصدير</button>
+      </div>
+    </section>
+
+    <!-- المرحلة 5 -->
+    <section class="panel" data-panel="5" hidden>
+      <div class="panel__head">
+        <h2>الاعتماد والتصدير</h2>
+        <p>راجع المعاينة النهائية، ثم اعتمد الخبر لتفعيل تصدير ملفي Word بالعربية والإنجليزية.</p>
+      </div>
+
+      <div class="export-options">
+        <label class="check"><input type="checkbox" id="includeImage" /> تضمين الصورة الرئيسية ونصها البديل في ملفات Word (الافتراضي: العنوان والنص فقط)</label>
+      </div>
+
+      <div id="finalPreview" class="result"></div>
+
+      <div id="approveBox" class="approve">
+        <button class="btn btn--primary btn--lg" id="approveBtn">اعتماد الخبر</button>
+        <span class="muted">بعد الاعتماد تُقفل النصوص ويمكن تصديرها. يمكنك إلغاء الاعتماد للتعديل مجددًا.</span>
+      </div>
+
+      <div id="exportBox" class="export" hidden>
+        <div class="export__status"><span class="badge badge--ok">تم اعتماد الخبر</span> <button class="btn btn--link" id="unapproveBtn">إلغاء الاعتماد والتعديل</button></div>
+        <div class="export__files">
+          <div class="file-chip"><span class="file-chip__icon">W</span><span id="fnAr"></span></div>
+          <div class="file-chip"><span class="file-chip__icon">W</span><span id="fnEn"></span></div>
+        </div>
+        <div class="export__actions">
+          <button class="btn btn--primary" id="saveFolderBtn"><span class="btn__spinner" hidden></span><span class="btn__text">اختيار مجلد وحفظ الملفين</span></button>
+          <button class="btn btn--secondary" id="dlArBtn">تنزيل النسخة العربية (Word)</button>
+          <button class="btn btn--secondary" id="dlEnBtn">تنزيل النسخة الإنجليزية (Word)</button>
+        </div>
+        <p class="muted" id="fsNote"></p>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn--ghost" data-prev="4">السابق</button>
+        <button class="btn btn--ghost" id="newNewsBtn">خبر جديد</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="brand-footer">
+    <div class="container">
+      <span>كلية إدارة الأعمال بحوطة بني تميم — جامعة الأمير سطام بن عبدالعزيز</span>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "college-news-generator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "أداة إعداد وصياغة أخبار كلية إدارة الأعمال بحوطة بني تميم",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.126.0",
+    "@github/copilot-sdk": "^1.0.14",
+    "docx": "^9.7.1",
+    "express": "^5.2.1"
+  }
+}
